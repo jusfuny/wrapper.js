@@ -1,9 +1,11 @@
 {
-  "name": "jusfuny-wrapper",
+  "name": "jusfuny",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "run": "node dist/index.js",
+    "build": "tsc -b",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

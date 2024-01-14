@@ -1,5 +1,6 @@
-import { PostQuery } from './post';
-import { Badge } from './badge';
+import { PostQuery } from './Post';
+import { Badge } from '../types/Badge';
+import {AxiosRequestConfig, AxiosResponse} from "axios";
 
 export class User {
 	name: string
@@ -32,14 +33,15 @@ export class User {
 			coins: number,
 			links: string[]
 		},
-		private accessToken: string | null
+		private isAuthorized: boolean,
+		private request: (config: AxiosRequestConfig, isFirst?: boolean) => Promise<AxiosResponse | null>
 	) {
 		this.name = model.name;
 		this.id = model.id;
 		this.description = model.description;
 		let posts: PostQuery[] = [];
 		model.posts.forEach((p) => {
-			posts.push(new PostQuery(p, accessToken));
+			posts.push(new PostQuery(p, request));
 		});
 		this.posts = posts;
 		this.posts_count = model.posts_count;
@@ -53,10 +55,24 @@ export class User {
 		this.links = model.links;
 	}
 
-	async createPost() {
-		if (this.accessToken == null) {
+	public async createPost() {
+		if (!this.isAuthorized) {
 			console.log("Unauthorized");
 			return;
 		}
+	}
+
+
+	public async feed() {
+		if (!this.isAuthorized) {
+			console.log("Unauthorized");
+			return;
+		}
+
+
+	}
+
+	public async follow() {
+
 	}
 }

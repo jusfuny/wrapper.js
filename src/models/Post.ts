@@ -1,3 +1,5 @@
+import {AxiosRequestConfig, AxiosResponse} from "axios";
+
 export class PostQuery {
 	id: number
 	author_id: string
@@ -11,7 +13,7 @@ export class PostQuery {
 			reactions_count: number,
 			created_at: string
 		},
-		private accessToken: string | null
+		private request: (config: AxiosRequestConfig, isFirst: boolean) => Promise<AxiosResponse | null>
 	) {
 		this.id = model.id;
 		this.author_id = model.author_id;
