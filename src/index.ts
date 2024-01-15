@@ -5,6 +5,9 @@ const client = new Client();
 
 async function doShit() {
 	await client.login("edoardo.takanen@gmail.com", "password");
-	const lory = await client.getUser("c0f4f96f-f730-4987-a6d1-d8dcb362e8e3");
+	const me = await client.me();
+	const feed = await me.feed();
+
+	await feed[0].react("🤖");
 }
 doShit();

@@ -1,40 +1,30 @@
-import { PostQuery } from './Post';
+import {Post, PostQuery} from './Post';
 import { Badge } from '../types/Badge';
-import {AxiosRequestConfig, AxiosResponse} from "axios";
+import {RequestFunc} from "../client";
+import {UserModel} from "../types/User";
+import {PostModel, PostQueryModel} from "../types/Post";
 
 export class User {
-	name: string
-	id: string
-	description: string
-	posts: PostQuery[]
-	posts_count: number
-	badges: Badge[]
-	followed: boolean
-	followers_count: number
-	following_count: number
-	created_at: string
-	first_login: boolean
-	coins: number
-	links: string[]
+	name: string;
+	id: string;
+	description: string;
+	posts: PostQuery[];
+	posts_count: number;
+	badges: Badge[];
+	followed: boolean;
+	followers_count: number;
+	following_count: number;
+	created_at: string;
+	first_login: boolean;
+	coins: number;
+	links: string[];
+
+	baseUrl: string;
 
 	constructor(
-		model: {
-			name: string,
-			id: string,
-			description: string,
-			posts: PostQuery[],
-			posts_count: number,
-			badges: Badge[],
-			followed: boolean,
-			followers_count: number,
-			following_count: number,
-			created_at: string,
-			first_login: boolean,
-			coins: number,
-			links: string[]
-		},
+		model: UserModel,
 		private isAuthorized: boolean,
-		private request: (config: AxiosRequestConfig, isFirst?: boolean) => Promise<AxiosResponse | null>
+		private request: RequestFunc
 	) {
 		this.name = model.name;
 		this.id = model.id;
@@ -53,26 +43,39 @@ export class User {
 		this.first_login = model.first_login;
 		this.coins = model.coins;
 		this.links = model.links;
+
+		this.baseUrl = `users/${this.id}`;
 	}
 
 	public async createPost() {
-		if (!this.isAuthorized) {
-			console.log("Unauthorized");
-			return;
-		}
+		if (!this.isAuthorized)
+			throw new Error("Unauthorized");
 	}
 
 
-	public async feed() {
-		if (!this.isAuthorized) {
-			console.log("Unauthorized");
-			return;
-		}
+	public async feed(): Promise<Post[]> {
+		if (!this.isAuthorized)
+			throw new Error("Unauthorized");
 
+		console.log(`${this.baseUrl}/feed`);
+		const res = await this.request<PostModel[]>({
+			url: `${this.baseUrl}/feed`
+		});
 
+		console.log(res.data);
+
+		if (!res.data)
+			throw new Error("Unknown error");
+
+		let posts: Post[] = []
+		res.data.forEach((p) => {
+			posts.push(new Post(p, this.request));
+		})
+		return posts;
 	}
 
 	public async follow() {
-
+		if (this.isAuthorized)
+			throw new Error("You can't follow yourself");
 	}
 }
