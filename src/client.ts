@@ -2,7 +2,6 @@ import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 import { createClient, Session } from '@supabase/supabase-js';
 import { SupabaseAuthClient } from "@supabase/supabase-js/dist/main/lib/SupabaseAuthClient";
 import {User} from "./models/User";
-import * as string_decoder from "string_decoder";
 import {UserModel} from "./types/User";
 
 const supabaseURL = "https://bqgvutbsxbixftugczbf.supabase.co";
@@ -57,9 +56,9 @@ export class Client {
 		const res = await this.request<UserModel>({
 			url: `users/${this.userUid}`
 		});
-		if (!res?.data)
+		if (!res.data)
 			throw new Error("Unknown error");
-		return new User(res.data, true, this.request.bind(this));
+		return new User(res.data, true, true, this.request.bind(this));
 	}
 
 	async getSession(): Promise<Session> {
@@ -78,8 +77,7 @@ export class Client {
 		});
 
 		if (error != null) {
-			console.log("Error");
-			return;
+			throw error;
 		}
 
 		const session = data.session;
@@ -92,8 +90,8 @@ export class Client {
 			url: `users/${userId}`,
 			method: "get"
 		});
-		if (!res?.data)
+		if (!res.data)
 			throw new Error("Unknown error");
-		return new User(res.data, userId == this.userUid, this.request.bind(this));
+		return new User(res.data, userId == this.userUid, this.accessToken != null, this.request.bind(this));
 	}
 }

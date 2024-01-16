@@ -1,6 +1,6 @@
-import {UserQueryModel} from "./User";
 import {CommentModel} from "./Comment";
 import {Reaction} from "./Reaction";
+import {UserQuery} from "../models/User";
 
 export interface PostQueryModel {
     id: number,
@@ -11,7 +11,7 @@ export interface PostQueryModel {
 
 export interface PostModel {
     id: number,
-    author: UserQueryModel,
+    author: UserQuery,
     title: string,
     comments: CommentModel[],
     comments_count: number,
