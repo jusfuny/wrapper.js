@@ -3,6 +3,8 @@ import { createClient, Session } from '@supabase/supabase-js';
 import { SupabaseAuthClient } from "@supabase/supabase-js/dist/main/lib/SupabaseAuthClient";
 import {User} from "./models/User";
 import {UserModel} from "./types/User";
+import {RealtimeClient} from "./realtime";
+import {LoginRequiredError} from "./errors/LoginRequired";
 
 const supabaseURL = "https://bqgvutbsxbixftugczbf.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxZ3Z1dGJzeGJpeGZ0dWdjemJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTY4NjI5NDEsImV4cCI6MjAxMjQzODk0MX0.GPxEW6nA5R3dd-D-Hw7eTW1aNe59i0GDa_UrXP9_AqQ";
@@ -17,6 +19,7 @@ export type RequestFunc = <T>(config: AxiosRequestConfig, isFirst?: boolean) => 
 
 export class Client {
 	supaClient: SupabaseAuthClient;
+	realtime: RealtimeClient;
 	userUid: string | null;
 	accessToken: string | null;
 
@@ -24,6 +27,12 @@ export class Client {
 		this.supaClient = initSupabase();
 		this.accessToken = null;
 		this.userUid = null;
+		this.realtime = new RealtimeClient(this.getToken.bind(this), this.request.bind(this));
+	}
+
+	async getToken(): Promise<string> {
+		const s = await this.getSession();
+		return s.access_token;
 	}
 
 	async request<T>(config: AxiosRequestConfig, isFirst: boolean = true): Promise<AxiosResponse<T>> {
@@ -49,6 +58,12 @@ export class Client {
 		return res;
 	}
 
+	async startWs() {
+		if (this.userUid == null)
+			throw new LoginRequiredError();
+		await this.realtime.start(this.userUid);
+	}
+
 	async me(): Promise<User> {
 		if (!this.accessToken) {
 			throw new Error("You didn't provide a token");
@@ -63,8 +78,8 @@ export class Client {
 
 	async getSession(): Promise<Session> {
 		const { data, error } = await this.supaClient.getSession();
-		if (!error || !data.session) {
-			throw new Error("Failed to get session");
+		if (error || !data.session) {
+			throw new Error(`Failed to get session: ${error}`);
 		}
 
 		return data.session;
