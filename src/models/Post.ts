@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {RequestFunc} from "../client";
 import {PostModel, PostQueryModel} from "../types/Post";
 import {CommentModel} from "../types/Comment";
@@ -6,8 +8,11 @@ import {UserQuery} from "./User";
 import {LoginRequiredError} from "../errors/LoginRequired";
 import {UnauthorizedError} from "../errors/Unauthorized";
 import {ReportType} from "../types/Report";
+import {Comment} from "./Comment";
+import {AlreadyReportedError} from "../errors/AlreadyReported";
+import {UnexpectedStatusError} from "../errors/UnexpectedStatus";
 
-class BasePost {
+export class BasePost {
 	id: number;
 	author_id: string;
 
@@ -32,17 +37,20 @@ class BasePost {
 		if (!this.isAuthorized)
 			throw new UnauthorizedError();
 
-		await this.request({
+		const res = await this.request({
 			url: this.baseUrl,
 			method: "delete"
 		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
 	}
 
 	public async react(emoji: string) {
 		if (!this.isLogged)
 			throw new LoginRequiredError();
 
-		await this.request({
+		const res = await this.request({
 			url: `${this.baseUrl}/reactions`,
 			method: "post",
 			data: {
@@ -52,13 +60,16 @@ class BasePost {
 				"Content-Type": "application/json"
 			}
 		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
 	}
 
 	public async report(type: ReportType) {
 		if (!this.isLogged)
 			throw new LoginRequiredError();
 
-		await this.request({
+		const res = await this.request({
 			url: `${this.baseUrl}/reports`,
 			method: "post",
 			data: {
@@ -67,7 +78,12 @@ class BasePost {
 			headers: {
 				"Content-Type": "application/json"
 			}
-		})
+		});
+
+		if (res.status == 409)
+			throw new AlreadyReportedError("post");
+		else if (res.status != 200)
+			throw new UnexpectedStatusError(res);
 	}
 
 	public async edit(post: {title: string | null, factChecker: boolean | null}): Promise<Post> {
@@ -81,7 +97,11 @@ class BasePost {
 			headers: {
 				"Content-Type": "application/json"
 			}
-		})
+		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
 		return res.data;
 	}
 }
@@ -135,7 +155,11 @@ export class Post extends BasePost {
 
 		this.author = model.author
 		this.title = model.title
-		this.comments = model.comments
+		let comments: Comment[] = []
+		model.comments.forEach((c) => {
+			comments.push(new Comment(c, this, isAuthorized, isLogged, request));
+		});
+		this.comments = comments;
 		this.comments_count = model.comments_count
 		this.isFactChecker = model.isFactChecker
 		this.created_at = model.created_at
@@ -143,5 +167,22 @@ export class Post extends BasePost {
 		this.reactions = model.reactions
 		this.reactions_count = model.reactions_count
 		this.reacted = model.reacted
+	}
+
+	public async getComments(index: number, count: number) {
+		const res = await this.request<CommentModel[]>({
+			url: `${this.baseUrl}/comments?i=${index}&count=${count}`
+		});
+
+		let comments: Comment[] = [];
+
+		res.data.forEach((c) => {
+			comments.push(new Comment(c, this, this.isAuthorized, this.isLogged, this.request));
+		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
+		return comments;
 	}
 }

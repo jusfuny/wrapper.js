@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {Post, PostQuery} from './Post';
 import { Badge } from '../types/Badge';
 import {RequestFunc} from "../client";
@@ -5,6 +7,7 @@ import {UserModel, UserQueryModel} from "../types/User";
 import {PostModel} from "../types/Post";
 import {UnauthorizedError} from "../errors/Unauthorized";
 import {LoginRequiredError} from "../errors/LoginRequired";
+import {UnexpectedStatusError} from "../errors/UnexpectedStatus";
 
 class BaseUser {
 	id: string;
@@ -28,10 +31,13 @@ class BaseUser {
 		if (!this.isAuthorized)
 			throw new UnauthorizedError();
 
-		await this.request({
+		const res = await this.request({
 			url: `${this.baseUrl}`,
 			method: "delete"
 		})
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
 	}
 
 	public async createPost(post: {title: string, factChecker: boolean}, buffer: Buffer): Promise<Post> {
@@ -53,6 +59,9 @@ class BaseUser {
 			}
 		});
 
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
 		return res.data;
 	}
 
@@ -68,6 +77,10 @@ class BaseUser {
 				"Content-Type": "application/json"
 			}
 		})
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
 		return res.data;
 	}
 
@@ -96,15 +109,12 @@ class BaseUser {
 		if (!this.isAuthorized)
 			throw new UnauthorizedError();
 
-		console.log(`${this.baseUrl}/feed`);
 		const res = await this.request<PostModel[]>({
 			url: `${this.baseUrl}/feed`
 		});
 
-		console.log(res.data);
-
-		if (!res.data)
-			throw new Error("Unknown error");
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
 
 		let posts: Post[] = []
 		res.data.forEach((p) => {
@@ -126,10 +136,12 @@ class BaseUser {
 		if (!this.isLogged)
 			throw new LoginRequiredError();
 
-		await this.request({
+		const res = await this.request({
 			url: `${this.baseUrl}/follow`,
 			method: "post"
 		});
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
 	}
 }
 

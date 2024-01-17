@@ -6,7 +6,10 @@ const client = new Client();
 async function doShit() {
 	await client.login("edoardo.takanen@gmail.com", "password");
 	const me = await client.me();
-	//const feed = await me.feed();
+	const feed = await me.feed();
+	const post = feed.find((p) => { return p.comments_count > 0});
+
+
 
 	/*const b = fs.readFileSync("filepath");
 	console.log(b.toString("base64"));

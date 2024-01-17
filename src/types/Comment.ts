@@ -1,5 +1,6 @@
 import {ReplyModel} from "./Reply";
 import {UserQueryModel} from "./User";
+import {UserQuery} from "../models/User";
 
 export interface CommentModel {
     id: number,
@@ -8,6 +9,6 @@ export interface CommentModel {
     replies_count: number,
     replies: ReplyModel[],
     created_at: string,
-    author: UserQueryModel,
+    author: UserQuery,
     data: string
 }
