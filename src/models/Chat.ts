@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import {ChatQueryModel} from "../types/Chat";
+import {ChatModel, ChatQueryModel} from "../types/Chat";
 import {RequestFunc} from "../client";
 import {BaseMessage, Message, MessageQuery} from "./Message";
 import {BasePost} from "./Post";
@@ -21,7 +21,7 @@ class BaseChat {
             type: number,
             userId: string
         },
-        private request: RequestFunc
+        protected request: RequestFunc
     ) {
         this.id = model.id;
         this.type = model.type;
@@ -33,8 +33,8 @@ class BaseChat {
     public async send(
         msg: {
             content: string,
-            replying_to: number | BaseMessage | null,
-            attached: number | BasePost | null
+            replying_to?: number | BaseMessage,
+            attached?: number | BasePost
         }
     ) {
         const replying_to = (msg.replying_to instanceof BaseMessage) ? msg.replying_to.id : msg.replying_to;
@@ -140,8 +140,37 @@ class BaseChat {
     }
 }
 
-export class Chat {
+export class Chat extends BaseChat {
+    id: number;
+    name: string;
+    type: number;
+    participants: UserQuery[];
+    last_message: MessageQuery | null;
+    image: string;
+    is_read_only: boolean;
 
+    constructor(
+        model: ChatModel,
+        userId: string,
+        request: RequestFunc
+    ) {
+        super({
+            id: model.id,
+            type: model.type,
+            userId: userId
+        }, request);
+        this.id = model.id;
+        this.name = model.name;
+        this.type = model.type;
+        let participants: UserQuery[] = [];
+        model.participants.forEach((p) => {
+            participants.push(new UserQuery(p, p.id == userId, true, request));
+        });
+        this.participants = participants;
+        this.last_message = model.last_message ? new MessageQuery(model.last_message, model.last_message.author.id == userId, request) : null;
+        this.image = model.image;
+        this.is_read_only = model.is_read_only;
+    }
 }
 
 export class ChatQuery extends BaseChat {
@@ -168,5 +197,16 @@ export class ChatQuery extends BaseChat {
         this.last_message = model.last_message ? new MessageQuery(model.last_message, model.last_message.author.id == userId, request) : null;
         this.image = model.image;
         this.is_read_only = model.is_read_only;
+    }
+
+    public async getFull() {
+        const res = await this.request<ChatModel>({
+            url: `chats/${this.id}`
+        });
+
+        if (res.status != 200)
+            throw new UnexpectedStatusError(res);
+
+        return new Chat(res.data, this.userId, this.request);
     }
 }

@@ -1,10 +1,15 @@
+// noinspection JSUnusedGlobalSymbols
+
 import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 import { createClient, Session } from '@supabase/supabase-js';
 import { SupabaseAuthClient } from "@supabase/supabase-js/dist/main/lib/SupabaseAuthClient";
-import {User} from "./models/User";
+import {User, UserQuery} from "./models/User";
 import {UserModel} from "./types/User";
 import {RealtimeClient} from "./realtime";
 import {LoginRequiredError} from "./errors/LoginRequired";
+import {UnexpectedStatusError} from "./errors/UnexpectedStatus";
+import {Tag} from "./models/Tag";
+import {TagModel} from "./types/Tag";
 
 const supabaseURL = "https://bqgvutbsxbixftugczbf.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxZ3Z1dGJzeGJpeGZ0dWdjemJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTY4NjI5NDEsImV4cCI6MjAxMjQzODk0MX0.GPxEW6nA5R3dd-D-Hw7eTW1aNe59i0GDa_UrXP9_AqQ";
@@ -30,12 +35,12 @@ export class Client {
 		this.realtime = new RealtimeClient(this.getToken.bind(this), this.request.bind(this));
 	}
 
-	async getToken(): Promise<string> {
+	private async getToken(): Promise<string> {
 		const s = await this.getSession();
 		return s.access_token;
 	}
 
-	async request<T>(config: AxiosRequestConfig, isFirst: boolean = true): Promise<AxiosResponse<T>> {
+	private async request<T>(config: AxiosRequestConfig, isFirst: boolean = true): Promise<AxiosResponse<T>> {
 		if (!config.headers)
 			config.headers = {
 				"Authorization": this.accessToken
@@ -58,7 +63,7 @@ export class Client {
 		return res;
 	}
 
-	async startWs() {
+	async startRealtime() {
 		if (this.userUid == null)
 			throw new LoginRequiredError();
 		await this.realtime.start(this.userUid);
@@ -76,7 +81,7 @@ export class Client {
 		return new User(res.data, true, true, this.request.bind(this));
 	}
 
-	async getSession(): Promise<Session> {
+	private async getSession(): Promise<Session> {
 		const { data, error } = await this.supaClient.getSession();
 		if (error || !data.session) {
 			throw new Error(`Failed to get session: ${error}`);
@@ -108,5 +113,52 @@ export class Client {
 		if (!res.data)
 			throw new Error("Unknown error");
 		return new User(res.data, userId == this.userUid, this.accessToken != null, this.request.bind(this));
+	}
+
+	async searchUsers({ query, matchCase = true }: { query: string, matchCase?: boolean }): Promise<UserQuery[]> {
+		const res = await this.request<UserQuery[]>({
+			url: `users/search?q=${query}&matchCase=${matchCase ?? true}`
+		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
+		let users: UserQuery[] = [];
+
+		res.data.forEach((u) => {
+			users.push(
+				new UserQuery(
+					u,
+					this.userUid == u.id,
+					this.accessToken != null,
+					this.request.bind(this)
+				)
+			);
+		});
+
+		return users;
+	}
+
+	async searchTags({ query, matchCase = true }: { query: string, matchCase?: boolean }): Promise<Tag[]> {
+		const res = await this.request<TagModel[]>({
+			url: `posts/search?q=${query}&matchCase=${matchCase ?? true}`
+		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
+		let tags: Tag[] = [];
+
+		res.data.forEach((u) => {
+			tags.push(
+				new Tag(
+					u,
+					this.userUid,
+					this.request.bind(this)
+				)
+			);
+		});
+
+		return tags;
 	}
 }

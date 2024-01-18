@@ -8,6 +8,8 @@ import {PostModel} from "../types/Post";
 import {UnauthorizedError} from "../errors/Unauthorized";
 import {LoginRequiredError} from "../errors/LoginRequired";
 import {UnexpectedStatusError} from "../errors/UnexpectedStatus";
+import {Chat, ChatQuery} from "./Chat";
+import {ChatModel, ChatQueryModel} from "../types/Chat";
 
 class BaseUser {
 	id: string;
@@ -27,6 +29,40 @@ class BaseUser {
 		this.baseUrl = `users/${this.id}`;
 	}
 
+	public async getChats(): Promise<ChatQuery[]> {
+		if (!this.isAuthorized)
+			throw new UnauthorizedError();
+
+		const res = await this.request<ChatQueryModel[]>({
+			url: `chats`
+		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
+		let chats: ChatQuery[] = [];
+
+		res.data.forEach((c) => {
+			chats.push(new ChatQuery(c, this.id, this.request));
+		});
+
+		return chats;
+	}
+
+	public async getChat(id: number): Promise<Chat> {
+		if (!this.isAuthorized)
+			throw new UnauthorizedError();
+
+		const res = await this.request<ChatModel>({
+			url: `chats/${id}`
+		});
+
+		if (res.status != 200)
+			throw new UnexpectedStatusError(res);
+
+		return new Chat(res.data, this.id, this.request);
+	}
+
 	public async delete() {
 		if (!this.isAuthorized)
 			throw new UnauthorizedError();
@@ -40,6 +76,14 @@ class BaseUser {
 			throw new UnexpectedStatusError(res);
 	}
 
+	/**
+	 *
+	 * @param post post's params
+	 * @param buffer file buffer
+	 * @example
+	 * const file = fs.readFileSync("filepath");
+	 * await me.createPost({title: "Hate it when it happens", factChecker: false}, file)
+	 */
 	public async createPost(post: {title: string, factChecker: boolean}, buffer: Buffer): Promise<Post> {
 		if (!this.isAuthorized)
 			throw new UnauthorizedError();
@@ -84,6 +128,13 @@ class BaseUser {
 		return res.data;
 	}
 
+	/**
+	 *
+	 * @param blob
+	 * @example
+	 * const blob = await fs.openAsBlob("filepath");
+	 * await me.changePfp(blob);
+	 */
 	public async changePfp(blob: Blob) {
 		if (!this.isAuthorized)
 			throw new UnauthorizedError();
