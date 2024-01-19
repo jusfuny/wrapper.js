@@ -8,8 +8,7 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "declaration": true,
-    "declarationDir": "./dist",
-    "typeRoots": ["./src/globals.d.ts", "./node_modules/@types"]
+    "declarationDir": "./dist"
   },
   "include": [
     "src/**/*.ts"
