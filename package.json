@@ -1,6 +1,6 @@
 {
   "name": "@jusfuny/jusfuny",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JusFuny's api wrapper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,8 +9,15 @@
     "build": "tsc -b",
     "test": "exit 0"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Tyger375",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jusfuny/wrapper.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jusfuny/wrapper.js/issues"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.3",
     "axios": "^1.6.5",
