@@ -1,6 +1,6 @@
 {
   "name": "@jusfuny/jusfuny",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JusFuny's api wrapper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
