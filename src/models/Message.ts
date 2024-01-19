@@ -1,7 +1,7 @@
 import {UserQuery} from "./User";
 import {PostQuery} from "./Post";
 import {MessageModel, MessageQueryModel} from "../types/Message";
-import {Client, RequestFunc} from "../client";
+import {RequestFunc} from "../client";
 import {ChatQuery} from "./Chat";
 import {UnauthorizedError} from "../errors/Unauthorized";
 import {UnexpectedStatusError} from "../errors/UnexpectedStatus";

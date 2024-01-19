@@ -1,9 +1,10 @@
 {
   "name": "@jusfuny/jusfuny",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "JusFuny's api wrapper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "commonjs",
   "scripts": {
     "run": "node dist/index.js",
     "build": "tsc -b",
