@@ -1,6 +1,6 @@
-import {Reaction} from "./Reaction";
-import {UserQuery} from "../models/User";
-import {Comment} from "../models/Comment";
+import { Reaction } from "./Reaction";
+import { UserQuery } from "../models/User";
+import { Comment } from "../models/Comment";
 
 export interface PostQueryModel {
     id: number,

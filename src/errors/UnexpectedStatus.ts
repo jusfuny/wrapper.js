@@ -1,4 +1,4 @@
-import {AxiosResponse} from "axios";
+import { AxiosResponse } from "axios";
 
 export class UnexpectedStatusError extends Error {
     constructor(response: AxiosResponse) {

@@ -4,11 +4,9 @@
   "description": "JusFuny's api wrapper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "commonjs",
   "scripts": {
     "run": "node dist/index.js",
-    "build": "tsc -b",
-    "test": "exit 0"
+    "build": "tsc -b"
   },
   "author": "Tyger375",
   "license": "MIT",

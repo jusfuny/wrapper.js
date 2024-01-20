@@ -1,5 +1,5 @@
-import {UserQuery} from "../models/User";
-import {MessageQuery} from "../models/Message";
+import { UserQuery } from "../models/User";
+import { MessageQuery } from "../models/Message";
 
 export interface ChatModel {
     id: number,

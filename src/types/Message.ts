@@ -1,7 +1,7 @@
-import {UserQuery} from "../models/User";
-import {PostQuery} from "../models/Post";
-import {ChatQuery} from "../models/Chat";
-import {MessageQuery} from "../models/Message";
+import { UserQuery } from "../models/User";
+import { PostQuery } from "../models/Post";
+import { ChatQuery } from "../models/Chat";
+import { MessageQuery } from "../models/Message";
 
 export interface MessageModel {
     id: number,
