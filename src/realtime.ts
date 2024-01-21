@@ -1,10 +1,10 @@
 // noinspection JSUnusedGlobalSymbols
 
 import WebSocket from "ws";
-import {WsMessage} from "./types/WsMessage";
-import {Message, MessageQuery} from "./models/Message";
-import {MessageModel, MessageQueryModel} from "./types/Message";
-import {RequestFunc} from "./client";
+import { WsMessage } from "./types/WsMessage";
+import { Message, MessageQuery } from "./models/Message";
+import { MessageModel, MessageQueryModel } from "./types/Message";
+import { RequestFunc } from "./client";
 
 export class RealtimeClient {
     accessToken: string | null;
@@ -22,9 +22,9 @@ export class RealtimeClient {
         this.accessToken = null;
         this.ws = null;
         this.pingInterval = null;
-        this.onMessageCreatedEvent = (_) => {};
-        this.onMessageEditedEvent = (_) => {};
-        this.onMessageDeletedEvent = (_) => {};
+        this.onMessageCreatedEvent = (_) => { };
+        this.onMessageEditedEvent = (_) => { };
+        this.onMessageDeletedEvent = (_) => { };
     }
 
     public async start(userUid: string) {

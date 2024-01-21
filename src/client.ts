@@ -1,15 +1,15 @@
 // noinspection JSUnusedGlobalSymbols
 
-import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { createClient, Session } from '@supabase/supabase-js';
 import { SupabaseAuthClient } from "@supabase/supabase-js/dist/main/lib/SupabaseAuthClient";
-import {User, UserQuery} from "./models/User";
-import {UserModel} from "./types/User";
-import {RealtimeClient} from "./realtime";
-import {LoginRequiredError} from "./errors/LoginRequired";
-import {UnexpectedStatusError} from "./errors/UnexpectedStatus";
-import {Tag} from "./models/Tag";
-import {TagModel} from "./types/Tag";
+import { User, UserQuery } from "./models/User";
+import { UserModel } from "./types/User";
+import { RealtimeClient } from "./realtime";
+import { LoginRequiredError } from "./errors/LoginRequired";
+import { UnexpectedStatusError } from "./errors/UnexpectedStatus";
+import { Tag } from "./models/Tag";
+import { TagModel } from "./types/Tag";
 
 const supabaseURL = "https://bqgvutbsxbixftugczbf.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxZ3Z1dGJzeGJpeGZ0dWdjemJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTY4NjI5NDEsImV4cCI6MjAxMjQzODk0MX0.GPxEW6nA5R3dd-D-Hw7eTW1aNe59i0GDa_UrXP9_AqQ";

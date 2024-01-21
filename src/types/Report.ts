@@ -1,5 +1,5 @@
 export enum ReportType {
-    TOXIC=1,
+    TOXIC = 1,
     EXPLICIT,
     COPIED
 }

@@ -1,4 +1,4 @@
-import {UserQueryModel} from "./User";
+import { UserQueryModel } from "./User";
 
 export interface ReplyModel {
     id: number,

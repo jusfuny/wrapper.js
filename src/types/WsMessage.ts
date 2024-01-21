@@ -1,4 +1,4 @@
-import {Message, MessageQuery} from "../models/Message";
+import { Message, MessageQuery } from "../models/Message";
 
 export interface WsMessage {
     type: number,

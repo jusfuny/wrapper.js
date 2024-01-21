@@ -1,6 +1,5 @@
-import {ReplyModel} from "./Reply";
-import {UserQueryModel} from "./User";
-import {UserQuery} from "../models/User";
+import { ReplyModel } from "./Reply";
+import { UserQuery } from "../models/User";
 
 export interface CommentModel {
     id: number,

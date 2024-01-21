@@ -1,5 +1,5 @@
-import {PostQuery} from "../models/Post";
-import {Badge} from "./Badge";
+import { PostQuery } from "../models/Post";
+import { Badge } from "./Badge";
 
 export interface UserModel extends UserQueryModel {
     description: string,
